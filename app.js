@@ -10,5 +10,8 @@ app.use("/users", userRouter);
 const postRouter = require("./routes/postRouter");
 app.use("/posts", postRouter);
 
+const commentRouter = require("./routes/commentRouter");
+app.use("/comments", commentRouter);
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Express app listening on port ${PORT}!`));
