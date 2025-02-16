@@ -60,6 +60,14 @@ const updatePost = async (req, res) => {
     try {
         const { postId } = req.params;
         const { title, contents, published } = req.body;
+        const user = req.user;
+
+        // figure out post information so we can use it to determine if user can update post
+        const post = await prisma.post.findUnique( { where: { id: postId } });
+
+        // can only delete user if user is the same or if they have the admin role
+        if (post.authorId != user.id && user.role != "ADMIN") return res.status(401).json({ error: "Not authorized to update post"});
+
         const updatedPost = await prisma.post.update({
             where: { id: postId },
             data: {
@@ -77,12 +85,19 @@ const updatePost = async (req, res) => {
 const deletePost = async (req, res) => {
     try {
         const { postId } = req.params;
+        const user = req.user;
+
+        // figure out post information so we can use it to determine if user can delete post
+        const post = await prisma.post.findUnique( { where: { id: postId } });
+
+        // can only delete user if user is the same or if they have the admin role
+        if (post.authorId != user.id && user.role != "ADMIN") return res.status(401).json({ error: "Not authorized to delete post"});
 
         const deletedPost = await prisma.post.delete( { where: { id: postId } });
 
         res.status(204).send();
     } catch (error) {
-        res.status(500).json({ message: "Error deleting post" });
+                res.status(500).json({ message: "Error deleting post" });
     }
 }
 

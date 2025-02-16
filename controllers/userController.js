@@ -1,5 +1,8 @@
 const prisma = require("../prisma/prisma");
 const bcrypt = require("bcryptjs");
+const passport = require("passport");
+require("../middleware/passport");
+const jwt = require("jsonwebtoken");
 
 const createUser = async (req, res) => {
     try {
@@ -78,6 +81,10 @@ const updateUser = async (req, res) => {
     try {
         const { userId } = req.params;
         const { email, name, password, role } = req.body;
+        const user = req.user;
+
+        // can only update user if user is the same or if they have the admin role
+        if (user.id != userId && user.role != "ADMIN") return res.status(401).json({ error: "Not authorized to update user"});
         const hashedPassword = await bcrypt.hash(password, 10);
 
         let updateData = {
@@ -103,7 +110,11 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
     try {
         const { userId } = req.params;
+        const user = req.user;
 
+        // can only delete user if user is the same or if they have the admin role
+        if (user.id != userId && user.role != "ADMIN") return res.status(401).json({ error: "Not authorized to delete user"});
+        
         const deletedUser = await prisma.user.delete( { where: { id: userId } });
 
         res.status(204).send();
@@ -112,6 +123,19 @@ const deleteUser = async (req, res) => {
     }
 }
 
+const loginUser = async (req, res, next) => {
+    passport.authenticate("local", { session: false }, (err, user, info) => {
+        if (err) return res.status(500).json({ error: "Internal Server Error" });
+        if (!user) return res.status(401).json({ error: info.message });
+
+        // Generate JWT token if authenticated properly
+        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {
+            expiresIn: "7d",
+        });
+
+        res.json({ token, user: { id: user.id, email: user.email } });
+    })(req, res, next);
+}
 
 module.exports = {
     createUser,
@@ -120,5 +144,6 @@ module.exports = {
     getUserPosts,
     getUserComments,
     updateUser,
-    deleteUser
+    deleteUser,
+    loginUser,
 }

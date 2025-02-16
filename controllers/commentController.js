@@ -45,6 +45,14 @@ const updateComment = async (req, res) => {
     try {
         const { commentId } = req.params;
         const { contents } = req.body;
+        const user = req.user;
+
+        // figure out comment information so we can use it to determine if user can update comment
+        const comment = await prisma.comment.findUnique( { where: { id: commentId } });
+
+        // can only delete user if user is the same or if they have the admin role
+        if (comment.authorId != user.id && user.role != "ADMIN") return res.status(401).json({ error: "Not authorized to update comment"});
+        
         const updatedComment = await prisma.comment.update({
             where: { id: commentId },
             data: {
@@ -60,6 +68,13 @@ const updateComment = async (req, res) => {
 const deleteComment = async (req, res) => {
     try {
         const { commentId } = req.params;
+        const user = req.user;
+
+        // figure out comment information so we can use it to determine if user can delete comment
+        const comment = await prisma.comment.findUnique( { where: { id: commentId } });
+
+        // can only delete user if user is the same or if they have the admin role
+        if (comment.authorId != user.id && user.role != "ADMIN") return res.status(401).json({ error: "Not authorized to delete comment"});
 
         const deletedComment = await prisma.comment.delete( { where: { id: commentId } });
 
