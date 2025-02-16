@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id  String @id @default(uuid())
+  email String @unique
+  name String @unique
+  password String
+  role Role
+  posts Post[]
+  comments Comment[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Post {
+  id String @id @default(uuid())
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+  title String
+  contents String
+  updatedAt DateTime @updatedAt
+  published Boolean
+  comments Comment[]
+}
+
+model Comment {
+  id String @id @default(uuid())
+  post Post @relation(fields: [postId], references: [id])
+  postId String
+  author User @relation(fields: [authorId], references: [id])
+  authorId String
+  contents String
+  updatedAt DateTime @updatedAt
+}
