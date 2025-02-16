@@ -28,7 +28,6 @@ const getAllPosts = async (req, res) => {
         const posts = await prisma.post.findMany(filter);
         res.json(posts);
     } catch (error) {
-        console.error(error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
@@ -42,6 +41,18 @@ const getPost = async (req, res) => {
         res.status(200).json(post);
     } catch (error) {
         res.status(500).json( { message: "Error retrieving post"});
+    }
+}
+
+const getPostComments = async (req, res) => {
+    try {
+        const { postId } = req.params;
+
+        const comments = await prisma.comment.findMany( { where: { postId: postId }});
+
+        res.status(200).json(comments);
+    } catch (error) {
+        res.status(500).json( { message: "Error retrieving comments for post"});
     }
 }
 
@@ -79,6 +90,7 @@ module.exports = {
     createPost,
     getAllPosts,
     getPost,
+    getPostComments,
     updatePost,
     deletePost
 }

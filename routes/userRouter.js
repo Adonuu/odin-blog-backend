@@ -4,6 +4,8 @@ const userRouter = Router();
 const userController = require("../controllers/userController");
 
 userRouter.get("/", userController.getAllUsers);
+userRouter.get("/:userId/posts", userController.getUserPosts);
+userRouter.get("/:userId/comments", userController.getUserComments);
 userRouter.get("/:userId", userController.getUser);
 
 userRouter.post("/", userController.createUser);

@@ -50,6 +50,30 @@ const getUser = async (req, res) => {
     }
 }
 
+const getUserPosts = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { published } = req.query;
+        const filter = published ? { where: { published: published === "true", authorId: userId } } : { where: { authorId: userId } };
+
+        const posts = await prisma.post.findMany(filter);
+        res.json(posts);
+    } catch (error) {
+        res.status(500).json({ error: "Error getting posts for user" });
+    }
+}
+
+const getUserComments = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const comments = await prisma.comment.findMany({ where: { authorId: userId }});
+        res.json(comments);
+    } catch (error) {
+        res.status(500).json({ error: "Error getting posts for user" });
+    }
+}
+
 const updateUser = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -93,6 +117,8 @@ module.exports = {
     createUser,
     getAllUsers,
     getUser,
+    getUserPosts,
+    getUserComments,
     updateUser,
     deleteUser
 }

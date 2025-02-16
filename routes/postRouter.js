@@ -4,6 +4,7 @@ const postRouter = Router();
 const postController = require("../controllers/postController");
 
 postRouter.get("/", postController.getAllPosts);
+postRouter.get("/:postId/comments", postController.getPostComments);
 postRouter.get("/:postId", postController.getPost);
 
 postRouter.post("/", postController.createPost);
