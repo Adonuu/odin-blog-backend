@@ -93,8 +93,8 @@ const updateUser = async (req, res) => {
             password: hashedPassword
         }
 
-        // add role to data if it was passed in
-        if (role) updateData.role = role;
+        // only allow role to be updated if a admin user is doing it
+        if (role && user.role === "ADMIN") updateData.role = role;
 
         const updatedUser = await prisma.user.update({
             where: { id: userId },
