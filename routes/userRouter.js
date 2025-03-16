@@ -12,6 +12,7 @@ userRouter.get("/:userId", userController.getUser);
 
 userRouter.post("/", userController.createUser);
 userRouter.post("/login", userController.loginUser);
+userRouter.post("/login/jwt", userController.loginUserWithJWT);
 
 userRouter.put("/:userId", authenticateUser, userController.updateUser);
 

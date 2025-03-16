@@ -133,8 +133,23 @@ const loginUser = async (req, res, next) => {
             expiresIn: "7d",
         });
 
-        res.json({ token, user: { id: user.id, email: user.email } });
+        res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
     })(req, res, next);
+}
+
+const loginUserWithJWT = async (req, res, next) => {
+    const token = req.headers['authorization']?.split(' ')[1];
+
+    if (!token) {
+        return res.status(403).json({ message: 'No token provided' });
+    }
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        res.status(200).json({ message: "JWT Valid" });
+    });
 }
 
 module.exports = {
@@ -146,4 +161,5 @@ module.exports = {
     updateUser,
     deleteUser,
     loginUser,
+    loginUserWithJWT
 }
