@@ -133,7 +133,7 @@ const loginUser = async (req, res, next) => {
             expiresIn: "7d",
         });
 
-        res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
+        res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
     })(req, res, next);
 }
 
