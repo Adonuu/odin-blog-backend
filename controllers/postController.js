@@ -25,7 +25,18 @@ const getAllPosts = async (req, res) => {
         const { published } = req.query;
         const filter = published ? { where: { published: published === "true" } } : {};
 
-        const posts = await prisma.post.findMany(filter);
+        const posts = await prisma.post.findMany({
+            ...filter,
+            include: {
+                author: true, // This will include the author (User) details
+                comments: {
+                    include: {
+                        author: true,
+                        post: true,
+                    },
+                },
+            },
+        });
         res.json(posts);
     } catch (error) {
         res.status(500).json({ error: "Internal server error" });
